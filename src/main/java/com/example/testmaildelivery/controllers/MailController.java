@@ -23,13 +23,13 @@ public class MailController {
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @PutMapping("/add-postal-item")
+    @PatchMapping("/add-post-office")
     public ResponseEntity<HttpStatus> addPostalItemToPostOffice(@RequestBody PostalItemAddingRequest postalItemAddingRequest) {
         mailService.addPostalItemToPostOffice(postalItemAddingRequest);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @PutMapping("/left-postal-item/{id}")
+    @PatchMapping("/left-postal-item/{id}")
     public ResponseEntity<HttpStatus> leftPostalItemFromPostOffice(@PathVariable long id) {
         mailService.leftFromPostOffice(id);
         return ResponseEntity.ok(HttpStatus.OK);
@@ -40,9 +40,9 @@ public class MailController {
         return ResponseEntity.ok(mailService.findPostalItemStatusAndStatusById(id));
     }
 
-    @PutMapping("/receive-postal-item/{id}")
+    @PatchMapping("/receive-postal-item/{id}")
     public ResponseEntity<HttpStatus> receivePostalItem(@PathVariable long id) {
-        mailService.changePostalItemStatus(id);
+        mailService.changePostalItemStatusToReceived(id);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 }

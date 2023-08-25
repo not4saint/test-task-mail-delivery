@@ -15,7 +15,6 @@ import com.example.testmaildelivery.repositories.PostOfficeRepository;
 import com.example.testmaildelivery.repositories.PostalItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +30,6 @@ public class MailService {
     public void registerPostalItem(PostalItemRegistrationRequest postalItemRegistrationRequest) {
         PostalItem postalItem = postalItemMapper.toModel(postalItemRegistrationRequest);
 
-        log.info(postalItem.toString());
         PostOffice postOffice = postOfficeRepository.findById(postalItemRegistrationRequest.getPostOfficeId())
                 .orElseThrow(() -> new PostNotFoundException("Post with current id not found"));
 
@@ -45,14 +43,12 @@ public class MailService {
         if (postalItem.getMailStatus() != MailStatus.EN_ROUTE) {
             throw new PostalItemNotEnRoute("Postal item isn't transit");
         }
-        Hibernate.initialize(postalItem);
-        log.info(postalItem.getPostOffices().toString());
+//        Hibernate.initialize(postalItem);
         PostOffice postOffice = postOfficeRepository.findById(postalItemAddingRequest.getPostOfficeId())
                 .orElseThrow(() -> new PostNotFoundException("Post with current id not found"));
 
         postalItem.getPostOffices().add(postOffice);
-        log.info(postalItem.getPostOffices().toString());
-        postalItemRepository.save(postalItem);
+        postalItem.setMailStatus(MailStatus.IN_THE_POST_OFFICE);
     }
 
     public void leftFromPostOffice(long id) {
@@ -62,24 +58,20 @@ public class MailService {
         }
 
         postalItem.setMailStatus(MailStatus.EN_ROUTE);
-        postalItemRepository.save(postalItem);
     }
 
     public PostalItemResponse findPostalItemStatusAndStatusById(long id) {
         PostalItem postalItem = getPostalItemById(id);
-        log.info(postalItem.toString());
-        log.info(postalItem.getPostOffices().toString());
         return new PostalItemResponse(postalItem.getPostOffices(), postalItem.getMailStatus());
     }
 
-    public void changePostalItemStatus(long id) {
+    public void changePostalItemStatusToReceived(long id) {
         PostalItem postalItem = getPostalItemById(id);
-        if (postalItem.getMailStatus() != MailStatus.EN_ROUTE) {
+        if (postalItem.getMailStatus() != MailStatus.IN_THE_POST_OFFICE) {
             throw new PostalItemNotEnRoute("Postal item isn't transit");
         }
 
         postalItem.setMailStatus(MailStatus.RECEIVED);
-        postalItemRepository.save(postalItem);
     }
 
     private PostalItem getPostalItemById(long id) {
