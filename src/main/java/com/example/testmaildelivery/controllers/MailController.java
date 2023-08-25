@@ -1,46 +1,46 @@
 package com.example.testmaildelivery.controllers;
 
-import com.example.testmaildelivery.dto.PostalItemRequest;
+import com.example.testmaildelivery.dto.PostalItemAddingRequest;
+import com.example.testmaildelivery.dto.PostalItemRegistrationRequest;
 import com.example.testmaildelivery.dto.PostalItemResponse;
-import com.example.testmaildelivery.models.PostalItem;
 import com.example.testmaildelivery.services.MailService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 
-@Controller
+@RestController
 @RequestMapping("/api/mail")
 @RequiredArgsConstructor
 public class MailController {
     private final MailService mailService;
 
     @PostMapping("/register-postal-item")
-    public ResponseEntity<HttpStatus> registerPostalItem(@RequestBody PostalItem postalItem) {
-        mailService.addPostalItem(postalItem);
+    public ResponseEntity<HttpStatus> registerPostalItem(@RequestBody @Valid PostalItemRegistrationRequest postalItem) {
+        mailService.registerPostalItem(postalItem);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @PostMapping("/add-postal-item")
-    public ResponseEntity<HttpStatus> addPostalItem(@RequestBody PostalItemRequest postalItemRequest) {
-        mailService.addPostOffice(postalItemRequest);
+    @PutMapping("/add-postal-item")
+    public ResponseEntity<HttpStatus> addPostalItemToPostOffice(@RequestBody PostalItemAddingRequest postalItemAddingRequest) {
+        mailService.addPostalItemToPostOffice(postalItemAddingRequest);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
-    @PostMapping("/left-postal-item/{id}")
-    public ResponseEntity<HttpStatus> leftPostalItem(@PathVariable long id) {
+    @PutMapping("/left-postal-item/{id}")
+    public ResponseEntity<HttpStatus> leftPostalItemFromPostOffice(@PathVariable long id) {
         mailService.leftFromPostOffice(id);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @GetMapping("/check-postal-item/{id}")
-    public PostalItemResponse checkPostalItem(@PathVariable long id) {
-        return mailService.findPostalItemStatusAndRouteById(id);
+    public ResponseEntity<PostalItemResponse> checkPostalItem(@PathVariable long id) {
+        return ResponseEntity.ok(mailService.findPostalItemStatusAndStatusById(id));
     }
 
-    @PostMapping("/receive-postal-item/{id}")
+    @PutMapping("/receive-postal-item/{id}")
     public ResponseEntity<HttpStatus> receivePostalItem(@PathVariable long id) {
         mailService.changePostalItemStatus(id);
         return ResponseEntity.ok(HttpStatus.OK);
