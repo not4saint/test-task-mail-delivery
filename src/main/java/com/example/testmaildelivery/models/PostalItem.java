@@ -36,11 +36,16 @@ public class PostalItem {
     @Column(name = "mail_status")
     private MailStatus mailStatus;
 
-    @ManyToMany()
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "post_office-postal_item",
-            joinColumns = @JoinColumn(name = "postal_item_id"),
-            inverseJoinColumns = @JoinColumn(name = "post_office_id"))
+            joinColumns = @JoinColumn(name = "postal_item_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "post_office_id", referencedColumnName = "id"))
     private Set<PostOffice> postOffices = new HashSet<>();
+
+//    public void addPostOffice(PostOffice postOffice) {
+//        this.postOffices.add(postOffice);
+//        postOffice.getPostalItems().add(this);
+//    }
 
 //    public Set<PostOffice> getPostOffices() {
 //        if (this.postOffices == null)

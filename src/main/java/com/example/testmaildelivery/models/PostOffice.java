@@ -24,7 +24,8 @@ public class PostOffice {
     @NotNull
     private String address;
 
-    @ManyToMany(mappedBy = "postOffices")
+    @ManyToMany(mappedBy = "postOffices", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//    @JsonBackReference
     private Set<PostalItem> postalItems = new HashSet<>();
 
 //    public Set<PostalItem> getPostalItems() {
