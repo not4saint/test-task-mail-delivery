@@ -12,7 +12,6 @@ import com.example.testmaildelivery.repositories.PostOfficeRepository;
 import com.example.testmaildelivery.repositories.PostalItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,8 +73,9 @@ public class MailService {
 
     public PostalItemResponse findPostalItemStatusAndStatusById(long id) {
         PostalItem postalItem = getPostalItemById(id);
-        Hibernate.initialize(postalItem.getPostOffices());
-        return new PostalItemResponse(postalItem.getPostOffices(), postalItem.getMailStatus());
+        var set = postOfficeRepository.findPostOfficesById(id);
+        log.info(set.toString());
+        return new PostalItemResponse(set, postalItem.getMailStatus());
     }
 
     public void changePostalItemStatusToReceived(long id) {

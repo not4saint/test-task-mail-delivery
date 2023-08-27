@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Data
@@ -37,10 +37,10 @@ public class PostalItem {
     private MailStatus mailStatus;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "post_office-postal_item",
+    @JoinTable(name = "post_office_postal_item",
             joinColumns = @JoinColumn(name = "postal_item_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "post_office_id", referencedColumnName = "id"))
-    private Set<PostOffice> postOffices = new HashSet<>();
+    private Set<PostOffice> postOffices = new LinkedHashSet<>();
 
 //    public void addPostOffice(PostOffice postOffice) {
 //        this.postOffices.add(postOffice);
