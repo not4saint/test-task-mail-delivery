@@ -47,12 +47,6 @@ public class PostalItem {
         postOffice.getPostalItems().add(this);
     }
 
-//    public Set<PostOffice> getPostOffices() {
-//        if (this.postOffices == null)
-//            this.postOffices = new HashSet<>();
-//        return postOffices;
-//    }
-
     @Override
     public String toString() {
         return "PostalItem{" +
