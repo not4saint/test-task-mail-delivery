@@ -2,14 +2,14 @@ package com.example.testmaildelivery.models;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
+@EqualsAndHashCode(exclude = "postOffices")
 @Entity
 @Table(name = "postalitem")
 @NoArgsConstructor

@@ -12,6 +12,7 @@ import com.example.testmaildelivery.repositories.PostOfficeRepository;
 import com.example.testmaildelivery.repositories.PostalItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +29,7 @@ public class MailService {
         PostalItem postalItem = postalItemMapper.toModel(postalItemRegistrationRequest);
 
         PostOffice postOffice = postOfficeRepository.findById(postalItemRegistrationRequest.getPostOfficeId())
-                .orElseThrow(() -> new PostNotFoundException("Post with id="
+                .orElseThrow(() -> new PostNotFoundException("Post office with id="
                         + postalItemRegistrationRequest.getPostOfficeId() + " not found"));
 
         postalItem.getPostOffices().add(postOffice);
@@ -40,21 +41,24 @@ public class MailService {
         PostalItem postalItem = getPostalItemById(postalItemAddingRequest.getId());
 
         if (postalItem.getMailStatus() == MailStatus.RECEIVED)
-            throw new PostalItemAlreadyReceivedException("The package with id="
-                    + postalItemAddingRequest.getId() + "has already been received");
+            throw new PostalItemAlreadyReceivedException("The postal item with id="
+                    + postalItemAddingRequest.getId() + " has already been received");
 
         if (postalItem.getMailStatus() != MailStatus.EN_ROUTE)
             throw new PostalItemNotEnRoute("Postal item with id=" + postalItemAddingRequest.getId() + " isn't transit");
 
         PostOffice postOffice = postOfficeRepository.findById(postalItemAddingRequest.getPostOfficeId())
-                .orElseThrow(() -> new PostNotFoundException("Post with id="
+                .orElseThrow(() -> new PostNotFoundException("Post office with id="
                         + postalItemAddingRequest.getPostOfficeId() + " not found"));
 
-//        Hibernate.initialize(postalItem.getPostOffices());
+        Hibernate.initialize(postalItem.getPostOffices());
+        if (postalItem.getPostOffices().contains(postOffice)) {
+            throw new PostalItemAlreadyBeenInPostOffice("The postal item with id="
+                    + postalItemAddingRequest.getId() + " has already been in post office with id="
+                    + postalItemAddingRequest.getPostOfficeId());
+        }
 
-        log.info(postalItem.getPostOffices().toString());
         postalItem.getPostOffices().add(postOffice);
-        log.info(postalItem.getPostOffices().toString());
         postalItem.setMailStatus(MailStatus.IN_THE_POST_OFFICE);
     }
 
@@ -62,7 +66,7 @@ public class MailService {
         PostalItem postalItem = getPostalItemById(id);
 
         if (postalItem.getMailStatus() == MailStatus.RECEIVED)
-            throw new PostalItemAlreadyReceivedException("The package with id="
+            throw new PostalItemAlreadyReceivedException("The postal item with id="
                     + id + " has already been received");
         if (postalItem.getMailStatus() != MailStatus.IN_THE_POST_OFFICE) {
             throw new PostalItemNotInThePostOffice("Postal item with id=" + id + " isn't in the post office");
@@ -73,13 +77,15 @@ public class MailService {
 
     public PostalItemResponse findPostalItemStatusAndStatusById(long id) {
         PostalItem postalItem = getPostalItemById(id);
-        var set = postOfficeRepository.findPostOfficesById(id);
-        log.info(set.toString());
-        return new PostalItemResponse(set, postalItem.getMailStatus());
+        return new PostalItemResponse(postalItem.getPostOffices(), postalItem.getMailStatus());
     }
 
     public void changePostalItemStatusToReceived(long id) {
         PostalItem postalItem = getPostalItemById(id);
+        if (postalItem.getMailStatus() == MailStatus.RECEIVED)
+            throw new PostalItemAlreadyReceivedException("The postal item with id="
+                    + id + " has already been received");
+
         if (postalItem.getMailStatus() != MailStatus.IN_THE_POST_OFFICE) {
             throw new PostalItemNotInThePostOffice("Postal item with id=" + id + " isn't in the post office");
         }
@@ -89,6 +95,6 @@ public class MailService {
 
     private PostalItem getPostalItemById(long id) {
         return postalItemRepository.findById(id)
-                .orElseThrow(() -> new PostalItemNotFoundException("Post with id=" + id + " not found"));
+                .orElseThrow(() -> new PostalItemNotFoundException("Post office with id=" + id + " not found"));
     }
 }

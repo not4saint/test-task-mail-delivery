@@ -11,25 +11,21 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.time.LocalDateTime;
 
 @RestControllerAdvice
-//@Order(Ordered.HIGHEST_PRECEDENCE)
 public class ExceptionController extends ResponseEntityExceptionHandler {
-//    @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler({PostalItemNotFoundException.class, PostNotFoundException.class})
     public ResponseEntity<ExceptionResponse> handleNotFoundExceptions(RuntimeException e,
                                                                       HttpServletRequest request) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(request.getRequestURI(), e.getMessage(),
                 LocalDateTime.now());
         return new ResponseEntity<>(exceptionResponse, HttpStatus.NOT_FOUND);
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exceptionResponse);
     }
 
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler({PostalItemNotEnRoute.class, PostalItemNotInThePostOffice.class, PostalItemAlreadyReceivedException.class})
+    @ExceptionHandler({PostalItemNotEnRoute.class, PostalItemNotInThePostOffice.class,
+                        PostalItemAlreadyReceivedException.class, PostalItemAlreadyBeenInPostOffice.class})
     public ResponseEntity<ExceptionResponse> handleIncorrectSizePostFieldsException(RuntimeException e,
                                                                                     HttpServletRequest request) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(request.getRequestURI(), e.getMessage(),
                 LocalDateTime.now());
         return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionResponse);
     }
 }
