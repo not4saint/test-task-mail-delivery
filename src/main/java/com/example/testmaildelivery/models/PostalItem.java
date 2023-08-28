@@ -42,10 +42,10 @@ public class PostalItem {
             inverseJoinColumns = @JoinColumn(name = "post_office_id", referencedColumnName = "id"))
     private Set<PostOffice> postOffices = new LinkedHashSet<>();
 
-//    public void addPostOffice(PostOffice postOffice) {
-//        this.postOffices.add(postOffice);
-//        postOffice.getPostalItems().add(this);
-//    }
+    public void addPostOffice(PostOffice postOffice) {
+        this.postOffices.add(postOffice);
+        postOffice.getPostalItems().add(this);
+    }
 
 //    public Set<PostOffice> getPostOffices() {
 //        if (this.postOffices == null)

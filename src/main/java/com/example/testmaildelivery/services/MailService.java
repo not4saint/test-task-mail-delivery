@@ -32,7 +32,7 @@ public class MailService {
                 .orElseThrow(() -> new PostNotFoundException("Post office with id="
                         + postalItemRegistrationRequest.getPostOfficeId() + " not found"));
 
-        postalItem.getPostOffices().add(postOffice);
+        postalItem.addPostOffice(postOffice);
         postalItem.setMailStatus(MailStatus.IN_THE_POST_OFFICE);
         postalItemRepository.save(postalItem);
     }
@@ -58,7 +58,7 @@ public class MailService {
                     + postalItemAddingRequest.getPostOfficeId());
         }
 
-        postalItem.getPostOffices().add(postOffice);
+        postalItem.addPostOffice(postOffice);
         postalItem.setMailStatus(MailStatus.IN_THE_POST_OFFICE);
     }
 
