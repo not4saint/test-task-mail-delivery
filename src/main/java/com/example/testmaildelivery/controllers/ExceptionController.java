@@ -20,7 +20,7 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(exceptionResponse, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler({PostalItemNotEnRouteException.class, PostalItemNotInThePostOffice.class,
+    @ExceptionHandler({PostalItemNotEnRouteException.class, PostalItemNotInThePostOfficeException.class,
                         PostalItemAlreadyReceivedException.class, PostalItemAlreadyBeenInPostOfficeException.class})
     public ResponseEntity<ExceptionResponse> handleIncorrectSizePostFieldsException(RuntimeException e,
                                                                                     HttpServletRequest request) {

@@ -62,37 +62,35 @@ public class MailService {
         postalItem.setMailStatus(MailStatus.IN_THE_POST_OFFICE);
     }
 
-    public PostalItem leftFromPostOffice(long id) {
+    public void leftFromPostOffice(long id) {
         PostalItem postalItem = getPostalItemById(id);
 
         if (postalItem.getMailStatus() == MailStatus.RECEIVED)
             throw new PostalItemAlreadyReceivedException("The postal item with id="
                     + id + " has already been received");
         if (postalItem.getMailStatus() != MailStatus.IN_THE_POST_OFFICE) {
-            throw new PostalItemNotInThePostOffice("Postal item with id=" + id + " isn't in the post office");
+            throw new PostalItemNotInThePostOfficeException("Postal item with id=" + id + " isn't in the post office");
         }
 
         postalItem.setMailStatus(MailStatus.EN_ROUTE);
-        return postalItem;
     }
 
-    public PostalItemResponse findPostalItemStatusAndStatusById(long id) {
+    public PostalItemResponse findPostalItemStatusAndPostOfficesById(long id) {
         PostalItem postalItem = getPostalItemById(id);
         return new PostalItemResponse(postalItem.getMailStatus(), postalItem.getPostOffices());
     }
 
-    public PostalItem changePostalItemStatusToReceived(long id) {
+    public void changePostalItemStatusToReceived(long id) {
         PostalItem postalItem = getPostalItemById(id);
         if (postalItem.getMailStatus() == MailStatus.RECEIVED)
             throw new PostalItemAlreadyReceivedException("The postal item with id="
                     + id + " has already been received");
 
         if (postalItem.getMailStatus() != MailStatus.IN_THE_POST_OFFICE) {
-            throw new PostalItemNotInThePostOffice("Postal item with id=" + id + " isn't in the post office");
+            throw new PostalItemNotInThePostOfficeException("Postal item with id=" + id + " isn't in the post office");
         }
 
         postalItem.setMailStatus(MailStatus.RECEIVED);
-        return postalItem;
     }
 
     private PostalItem getPostalItemById(long id) {

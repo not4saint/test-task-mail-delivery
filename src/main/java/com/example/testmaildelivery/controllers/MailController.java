@@ -38,7 +38,7 @@ public class MailController {
 
     @GetMapping("/check-postal-item/{id}")
     public ResponseEntity<PostalItemResponse> checkPostalItem(@PathVariable long id) {
-        return ResponseEntity.ok(mailService.findPostalItemStatusAndStatusById(id));
+        return ResponseEntity.ok(mailService.findPostalItemStatusAndPostOfficesById(id));
     }
 
     @PatchMapping("/receive-postal-item/{id}")

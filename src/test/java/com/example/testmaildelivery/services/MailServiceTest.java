@@ -181,8 +181,47 @@ class MailServiceTest {
 
 
     @Test
-    void leftFromPostOffice() {
+    void shouldChangeMailStatus_AfterLeftFromPostOffice() {
+        int id = 1;
+        postalItem.addPostOffice(firstPostOffice);
+        postalItem.setMailStatus(MailStatus.EN_ROUTE);
+        var resultPostalItem = new PostalItem(1, MailType.LETTER, 123, "Mira 23", "Peter",
+                MailStatus.IN_THE_POST_OFFICE, new LinkedHashSet<>());
+        resultPostalItem.addPostOffice(firstPostOffice);
 
+        when(postalItemRepository.findById(any(Long.class))).thenReturn(Optional.of(resultPostalItem));
+
+        mailService.leftFromPostOffice(id);
+
+        assertNotNull(resultPostalItem);
+        assertEquals(resultPostalItem.getPostOffices(), postalItem.getPostOffices());
+        assertEquals(resultPostalItem, postalItem);
+    }
+
+    @Test
+    void shouldThrowPostalItemAlreadyReceivedException_IfItemReceived_WhenTryChangeStatusToEnRoute() {
+        int id = 1;
+        var resultPostalItem = new PostalItem(1, MailType.LETTER, 123, "Mira 23", "Peter",
+                MailStatus.RECEIVED, new LinkedHashSet<>());
+
+        when(postalItemRepository.findById(any(Long.class))).thenReturn(Optional.of(resultPostalItem));
+
+        RuntimeException e = assertThrows(PostalItemAlreadyReceivedException.class,
+                () -> mailService.leftFromPostOffice(id));
+        assertEquals(e.getMessage(), "The postal item with id=" + id + " has already been received");
+    }
+
+    @Test
+    void shouldThrowPostalItemNotInThePostOffice_IfItemInEnRoute_WhenTryChangeStatusToEnRoute() {
+        int id = 1;
+        var resultPostalItem = new PostalItem(1, MailType.LETTER, 123, "Mira 23", "Peter",
+                MailStatus.EN_ROUTE, new LinkedHashSet<>());
+
+        when(postalItemRepository.findById(any(Long.class))).thenReturn(Optional.of(resultPostalItem));
+
+        RuntimeException e = assertThrows(PostalItemNotInThePostOfficeException.class,
+                () -> mailService.leftFromPostOffice(id));
+        assertEquals(e.getMessage(), "Postal item with id=" + id + " isn't in the post office");
     }
 
     @Test
@@ -190,7 +229,7 @@ class MailServiceTest {
         var postalItemResponse = new PostalItemResponse(postalItem.getMailStatus(), postalItem.getPostOffices());
 
         when(postalItemRepository.findById(any(Long.class))).thenReturn(Optional.of(postalItem));
-        var response = mailService.findPostalItemStatusAndStatusById(1);
+        var response = mailService.findPostalItemStatusAndPostOfficesById(1);
 
         assertNotNull(response);
         assertEquals(response, postalItemResponse);
@@ -202,7 +241,7 @@ class MailServiceTest {
         when(postalItemRepository.findById(any(Long.class))).thenReturn(Optional.empty());
 
         RuntimeException e = assertThrows(PostalItemNotFoundException.class,
-                () -> mailService.findPostalItemStatusAndStatusById(nonExistId));
+                () -> mailService.findPostalItemStatusAndPostOfficesById(nonExistId));
         assertEquals(e.getMessage(), "Post office with id=" + nonExistId + " not found");
     }
 
