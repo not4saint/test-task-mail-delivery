@@ -246,6 +246,46 @@ class MailServiceTest {
     }
 
     @Test
-    void changePostalItemStatusToReceived() {
+    void shouldChangePostalItemStatusToReceived_AfterRequest() {
+        int id = 1;
+        postalItem.addPostOffice(firstPostOffice);
+        postalItem.setMailStatus(MailStatus.RECEIVED);
+        var resultPostalItem = new PostalItem(1, MailType.LETTER, 123, "Mira 23", "Peter",
+                MailStatus.IN_THE_POST_OFFICE, new LinkedHashSet<>());
+        resultPostalItem.addPostOffice(firstPostOffice);
+
+        when(postalItemRepository.findById(any(Long.class))).thenReturn(Optional.of(resultPostalItem));
+
+        mailService.changePostalItemStatusToReceived(id);
+
+        assertNotNull(resultPostalItem);
+        assertEquals(resultPostalItem.getPostOffices(), postalItem.getPostOffices());
+        assertEquals(resultPostalItem, postalItem);
+    }
+
+    @Test
+    void shouldThrowPostalItemAlreadyReceivedException_IfItemReceived_WhenTryChangeStatusToReceived() {
+        int id = 1;
+        var resultPostalItem = new PostalItem(1, MailType.LETTER, 123, "Mira 23", "Peter",
+                MailStatus.RECEIVED, new LinkedHashSet<>());
+
+        when(postalItemRepository.findById(any(Long.class))).thenReturn(Optional.of(resultPostalItem));
+
+        RuntimeException e = assertThrows(PostalItemAlreadyReceivedException.class,
+                () -> mailService.changePostalItemStatusToReceived(id));
+        assertEquals(e.getMessage(), "The postal item with id=" + id + " has already been received");
+    }
+
+    @Test
+    void shouldThrowPostalItemNotInThePostOffice_IfItemInEnRoute_WhenTryChangeStatusToReceived() {
+        int id = 1;
+        var resultPostalItem = new PostalItem(1, MailType.LETTER, 123, "Mira 23", "Peter",
+                MailStatus.EN_ROUTE, new LinkedHashSet<>());
+
+        when(postalItemRepository.findById(any(Long.class))).thenReturn(Optional.of(resultPostalItem));
+
+        RuntimeException e = assertThrows(PostalItemNotInThePostOfficeException.class,
+                () -> mailService.changePostalItemStatusToReceived(id));
+        assertEquals(e.getMessage(), "Postal item with id=" + id + " isn't in the post office");
     }
 }
