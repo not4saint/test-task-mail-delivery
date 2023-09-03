@@ -29,6 +29,12 @@ public class PostOffice {
     @JsonIgnore
     private Set<PostalItem> postalItems = new LinkedHashSet<>();
 
+    public PostOffice(long id, String name, String address) {
+        this.id = id;
+        this.name = name;
+        this.address = address;
+    }
+
     @Override
     public String toString() {
         return "PostOffice{" +

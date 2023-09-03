@@ -14,6 +14,7 @@ import java.util.Set;
 @Table(name = "postalitem")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class PostalItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

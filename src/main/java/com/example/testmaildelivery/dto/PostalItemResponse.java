@@ -10,7 +10,7 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 public class PostalItemResponse {
-    private Set<PostOffice> postOffices;
-
     private MailStatus mailStatus;
+
+    private Set<PostOffice> postOffices;
 }

@@ -25,7 +25,7 @@ public class MailService {
     private final PostOfficeRepository postOfficeRepository;
     private final PostalItemMapper postalItemMapper;
 
-    public void registerPostalItem(PostalItemRegistrationRequest postalItemRegistrationRequest) {
+    public PostalItem registerPostalItem(PostalItemRegistrationRequest postalItemRegistrationRequest) {
         PostalItem postalItem = postalItemMapper.toModel(postalItemRegistrationRequest);
 
         PostOffice postOffice = postOfficeRepository.findById(postalItemRegistrationRequest.getPostOfficeId())
@@ -34,7 +34,7 @@ public class MailService {
 
         postalItem.addPostOffice(postOffice);
         postalItem.setMailStatus(MailStatus.IN_THE_POST_OFFICE);
-        postalItemRepository.save(postalItem);
+        return postalItemRepository.save(postalItem);
     }
 
     public void addPostalItemToPostOffice(PostalItemAddingRequest postalItemAddingRequest) {
@@ -77,7 +77,7 @@ public class MailService {
 
     public PostalItemResponse findPostalItemStatusAndStatusById(long id) {
         PostalItem postalItem = getPostalItemById(id);
-        return new PostalItemResponse(postalItem.getPostOffices(), postalItem.getMailStatus());
+        return new PostalItemResponse(postalItem.getMailStatus(), postalItem.getPostOffices());
     }
 
     public void changePostalItemStatusToReceived(long id) {
