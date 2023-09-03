@@ -97,7 +97,10 @@ class MailServiceTest {
                         .build());
 
         when(postOfficeRepository.findById(any(Long.class))).thenReturn(Optional.empty());
-        assertThrows(PostNotFoundException.class, () -> mailService.registerPostalItem(registrationRequest));
+        RuntimeException e = assertThrows(PostNotFoundException.class,
+                () -> mailService.registerPostalItem(registrationRequest));
+        assertEquals(e.getMessage(), "Post office with id="
+                + registrationRequest.getPostOfficeId() + " not found");
     }
 
     @Test
@@ -129,8 +132,12 @@ class MailServiceTest {
 
     @Test
     void shouldThrowPostalItemNotFoundException_IfPostalItemNotExist() {
+        int nonExistId = 0;
         when(postalItemRepository.findById(any(Long.class))).thenReturn(Optional.empty());
-        assertThrows(PostalItemNotFoundException.class, () -> mailService.findPostalItemStatusAndStatusById(0));
+
+        RuntimeException e = assertThrows(PostalItemNotFoundException.class,
+                () -> mailService.findPostalItemStatusAndStatusById(nonExistId));
+        assertEquals(e.getMessage(), "Post office with id=" + nonExistId + " not found");
     }
 
     @Test
