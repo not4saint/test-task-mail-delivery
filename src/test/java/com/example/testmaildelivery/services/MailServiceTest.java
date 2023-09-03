@@ -78,12 +78,9 @@ class MailServiceTest {
     }
 
     @Test
-    void shouldThrowPostNotFoundException_IfNotExist() {
-        var registrationRequest = new PostalItemRegistrationRequest(MailType.LETTER,
-                123,
-                "Mira 23",
-                "Peter",
-                2);
+    void shouldThrowPostNotFoundException_IfNotExist_WhenTryRegisterPostalItem() {
+        var registrationRequest = new PostalItemRegistrationRequest(MailType.LETTER, 123, "Mira 23",
+                "Peter", 2);
 
         when(postalItemMapper.toModel(any(PostalItemRegistrationRequest.class)))
                 .thenReturn(PostalItem.builder()
@@ -122,7 +119,7 @@ class MailServiceTest {
     }
 
     @Test
-    void shouldThrowPostalItemAlreadyReceivedException_IfItemReceived() {
+    void shouldThrowPostalItemAlreadyReceivedException_IfItemReceived_WhenAddingPostOffice() {
         var addingRequest = new PostalItemAddingRequest(1, 2);
         var resultPostalItem = new PostalItem(1, MailType.LETTER, 123, "Mira 23", "Peter",
                 MailStatus.RECEIVED, new LinkedHashSet<>());
@@ -135,7 +132,7 @@ class MailServiceTest {
     }
 
     @Test
-    void shouldThrowPostalItemNotEnRouteException_IfItemEnRoute() {
+    void shouldThrowPostalItemNotEnRouteException_IfItemEnRoute_WhenAddingPostOffice() {
         var addingRequest = new PostalItemAddingRequest(1, 2);
         var resultPostalItem = new PostalItem(1, MailType.LETTER, 123, "Mira 23", "Peter",
                 MailStatus.IN_THE_POST_OFFICE, new LinkedHashSet<>());
@@ -148,7 +145,7 @@ class MailServiceTest {
     }
 
     @Test
-    void shouldThrowPostOfficeNotFoundException_IfPostOfficeNotFound() {
+    void shouldThrowPostOfficeNotFoundException_IfPostOfficeNotFound_WhenAddingPostOffice() {
         var addingRequest = new PostalItemAddingRequest(1, 0);
         var resultPostalItem = new PostalItem(1, MailType.LETTER, 123, "Mira 23", "Peter",
                 MailStatus.EN_ROUTE, new LinkedHashSet<>());
@@ -162,7 +159,7 @@ class MailServiceTest {
     }
 
     @Test
-    void shouldThrowPostalItemAlreadyBeenInPostOfficeException_IfPostOfficeAlreadyContains() {
+    void shouldThrowPostalItemAlreadyBeenInPostOfficeException_IfPostOfficeAlreadyContains_WhenAddingPostOffice() {
         postalItem.addPostOffice(firstPostOffice);
         var addingRequest = new PostalItemAddingRequest(1, 1);
         var resultPostalItem = new PostalItem(1, MailType.LETTER, 123, "Mira 23", "Peter",
