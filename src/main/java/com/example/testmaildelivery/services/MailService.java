@@ -25,16 +25,16 @@ public class MailService {
     private final PostOfficeRepository postOfficeRepository;
     private final PostalItemMapper postalItemMapper;
 
-    public PostalItem registerPostalItem(PostalItemRegistrationRequest postalItemRegistrationRequest) {
+    public void registerPostalItem(PostalItemRegistrationRequest postalItemRegistrationRequest) {
         PostalItem postalItem = postalItemMapper.toModel(postalItemRegistrationRequest);
 
         PostOffice postOffice = postOfficeRepository.findById(postalItemRegistrationRequest.getPostOfficeId())
-                .orElseThrow(() -> new PostNotFoundException("Post office with id="
+                .orElseThrow(() -> new PostOfficeNotFoundException("Post office with id="
                         + postalItemRegistrationRequest.getPostOfficeId() + " not found"));
 
         postalItem.addPostOffice(postOffice);
         postalItem.setMailStatus(MailStatus.IN_THE_POST_OFFICE);
-        return postalItemRepository.save(postalItem);
+        postalItemRepository.save(postalItem);
     }
 
     public void addPostalItemToPostOffice(PostalItemAddingRequest postalItemAddingRequest) {
@@ -45,15 +45,15 @@ public class MailService {
                     + postalItemAddingRequest.getId() + " has already been received");
 
         if (postalItem.getMailStatus() != MailStatus.EN_ROUTE)
-            throw new PostalItemNotEnRoute("Postal item with id=" + postalItemAddingRequest.getId() + " isn't transit");
+            throw new PostalItemNotEnRouteException("Postal item with id=" + postalItemAddingRequest.getId() + " isn't transit");
 
         PostOffice postOffice = postOfficeRepository.findById(postalItemAddingRequest.getPostOfficeId())
-                .orElseThrow(() -> new PostNotFoundException("Post office with id="
+                .orElseThrow(() -> new PostOfficeNotFoundException("Post office with id="
                         + postalItemAddingRequest.getPostOfficeId() + " not found"));
 
         Hibernate.initialize(postalItem.getPostOffices());
         if (postalItem.getPostOffices().contains(postOffice)) {
-            throw new PostalItemAlreadyBeenInPostOffice("The postal item with id="
+            throw new PostalItemAlreadyBeenInPostOfficeException("The postal item with id="
                     + postalItemAddingRequest.getId() + " has already been in post office with id="
                     + postalItemAddingRequest.getPostOfficeId());
         }
@@ -62,7 +62,7 @@ public class MailService {
         postalItem.setMailStatus(MailStatus.IN_THE_POST_OFFICE);
     }
 
-    public void leftFromPostOffice(long id) {
+    public PostalItem leftFromPostOffice(long id) {
         PostalItem postalItem = getPostalItemById(id);
 
         if (postalItem.getMailStatus() == MailStatus.RECEIVED)
@@ -73,6 +73,7 @@ public class MailService {
         }
 
         postalItem.setMailStatus(MailStatus.EN_ROUTE);
+        return postalItem;
     }
 
     public PostalItemResponse findPostalItemStatusAndStatusById(long id) {
@@ -80,7 +81,7 @@ public class MailService {
         return new PostalItemResponse(postalItem.getMailStatus(), postalItem.getPostOffices());
     }
 
-    public void changePostalItemStatusToReceived(long id) {
+    public PostalItem changePostalItemStatusToReceived(long id) {
         PostalItem postalItem = getPostalItemById(id);
         if (postalItem.getMailStatus() == MailStatus.RECEIVED)
             throw new PostalItemAlreadyReceivedException("The postal item with id="
@@ -91,6 +92,7 @@ public class MailService {
         }
 
         postalItem.setMailStatus(MailStatus.RECEIVED);
+        return postalItem;
     }
 
     private PostalItem getPostalItemById(long id) {

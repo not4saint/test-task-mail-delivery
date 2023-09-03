@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class ExceptionController extends ResponseEntityExceptionHandler {
-    @ExceptionHandler({PostalItemNotFoundException.class, PostNotFoundException.class})
+    @ExceptionHandler({PostalItemNotFoundException.class, PostOfficeNotFoundException.class})
     public ResponseEntity<ExceptionResponse> handleNotFoundExceptions(RuntimeException e,
                                                                       HttpServletRequest request) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(request.getRequestURI(), e.getMessage(),
@@ -20,8 +20,8 @@ public class ExceptionController extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(exceptionResponse, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler({PostalItemNotEnRoute.class, PostalItemNotInThePostOffice.class,
-                        PostalItemAlreadyReceivedException.class, PostalItemAlreadyBeenInPostOffice.class})
+    @ExceptionHandler({PostalItemNotEnRouteException.class, PostalItemNotInThePostOffice.class,
+                        PostalItemAlreadyReceivedException.class, PostalItemAlreadyBeenInPostOfficeException.class})
     public ResponseEntity<ExceptionResponse> handleIncorrectSizePostFieldsException(RuntimeException e,
                                                                                     HttpServletRequest request) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(request.getRequestURI(), e.getMessage(),
