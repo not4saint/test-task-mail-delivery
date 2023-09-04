@@ -14,6 +14,7 @@ import java.util.Set;
 @Entity @Table(name = "postoffice")
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class PostOffice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,6 +34,12 @@ public class PostOffice {
         this.id = id;
         this.name = name;
         this.address = address;
+    }
+
+    public Set<PostalItem> getPostalItems() {
+        if (postalItems == null)
+            return new LinkedHashSet<>();
+        return postalItems;
     }
 
     @Override

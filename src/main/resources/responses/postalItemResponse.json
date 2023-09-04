@@ -1,0 +1,15 @@
+{
+  "mailStatus": "EN_ROUTE",
+  "postOffices": [
+    {
+      "id": 2,
+      "name": "Post office the second",
+      "address": "Veteranov 3"
+    },
+    {
+      "id": 1,
+      "name": "Post office first",
+      "address": "Mira 23"
+    }
+  ]
+}

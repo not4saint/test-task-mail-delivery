@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    username: postgres
+    password: volatile789
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/mail-delivery
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        show_sql: true
