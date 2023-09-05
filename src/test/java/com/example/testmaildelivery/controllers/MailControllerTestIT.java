@@ -140,6 +140,12 @@ class MailControllerTestIT {
     }
 
     @Test
-    void receivePostalItem() {
+    void shouldReturnOkResponse_AfterReceivedPostalItem() throws Exception {
+        postalItem.setMailStatus(MailStatus.IN_THE_POST_OFFICE);
+        postalItemRepository.save(postalItem);
+
+        var request = patch("/api/mail/receive-postal-item/{id}", postalItem.getId());
+
+        this.mockMvc.perform(request).andExpect(status().isOk());
     }
 }
