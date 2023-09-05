@@ -21,8 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashSet;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
@@ -64,7 +63,6 @@ class MailControllerTestIT {
                 .address("Kirova 67")
                 .postOffices(new LinkedHashSet<>()).build();
         this.postalItem = postalItemRepository.save(postalItem);
-//        postalItem.addPostOffice(firstPostOffice);
     }
 
     @AfterAll
@@ -108,18 +106,37 @@ class MailControllerTestIT {
         );
     }
 
-
-
     @Test
-    void addPostalItemToPostOffice() {
+    void shouldReturnOkResponse_AfterLeftFromPostOffice() throws Exception {
+        postalItem.setMailStatus(MailStatus.IN_THE_POST_OFFICE);
+        postalItemRepository.save(postalItem);
+
+        var request = patch("/api/mail/left-postal-item/{id}", postalItem.getId());
+
+        this.mockMvc.perform(request).andExpect(status().isOk());
     }
 
     @Test
-    void leftPostalItemFromPostOffice() {
-    }
+    void shouldReturnPostalItemResponse_AfterGetStatusAndPostOffices() throws Exception {
+        postalItem.addPostOffice(firstPostOffice);
+        postalItemRepository.save(postalItem);
 
-    @Test
-    void checkPostalItem() {
+        var request = get("/api/mail/check-postal-item/{id}", postalItem.getId());
+
+        this.mockMvc.perform(request).andExpectAll(
+                status().isOk(),
+                MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON),
+                MockMvcResultMatchers.content().json("""
+                        {
+                             "mailStatus": %s,
+                             "postOffices": [
+                               {
+                                 "id": %s,
+                                 "name": "First office",
+                                 "address": "Kochetova 56"
+                               }
+                             ]
+                        }""".formatted(postalItem.getMailStatus(), firstPostOffice.getId())));
     }
 
     @Test
