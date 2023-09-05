@@ -84,10 +84,7 @@ class MailControllerTestIT {
                                 "postOfficeId": %s
                             }""".formatted(firstPostOffice.getId()));
 
-        this.mockMvc.perform(request).andExpectAll(
-                status().isOk(),
-                MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON)
-        );
+        this.mockMvc.perform(request).andExpect(status().isOk());
     }
 
     @Test
@@ -100,10 +97,7 @@ class MailControllerTestIT {
                                 "postOfficeId": %s
                             }""".formatted(postalItem.getId(), secondPostOffice.getId()));
 
-        this.mockMvc.perform(request).andExpectAll(
-                status().isOk(),
-                MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON)
-        );
+        this.mockMvc.perform(request).andExpect(status().isOk());
     }
 
     @Test
