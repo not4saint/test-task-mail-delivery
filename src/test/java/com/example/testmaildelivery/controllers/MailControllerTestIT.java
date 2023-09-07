@@ -1,6 +1,6 @@
 package com.example.testmaildelivery.controllers;
 
-import com.example.testmaildelivery.exceptions.PostOfficeNotFoundException;
+import com.example.testmaildelivery.exceptions.*;
 import com.example.testmaildelivery.models.MailStatus;
 import com.example.testmaildelivery.models.MailType;
 import com.example.testmaildelivery.models.PostOffice;
@@ -38,7 +38,7 @@ class MailControllerTestIT {
     private PostOffice secondPostOffice;
     private PostalItem postalItem;
 
-    @BeforeAll
+    @BeforeEach
     void addPostOffices() {
         PostOffice postOffice = PostOffice.builder()
                 .name("First office")
@@ -119,6 +119,130 @@ class MailControllerTestIT {
                             }""".formatted(postalItem.getId(), secondPostOffice.getId()));
 
         this.mockMvc.perform(request).andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldReturnExceptionResponse_IfThrowPostalItemNotFoundException_WhenAddingPostOffice() throws Exception {
+        postalItem.setMailStatus(MailStatus.EN_ROUTE);
+        postalItemRepository.save(postalItem);
+
+        long nonExistPostalItemId = postalItem.getId() + 1;
+        var request = patch("/api/mail/add-post-office")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                            {
+                                "id": %s,
+                                "postOfficeId": %s
+                            }""".formatted(nonExistPostalItemId, secondPostOffice.getId()));
+
+        this.mockMvc.perform(request).andExpectAll(
+                result -> Assertions.assertTrue(result.getResolvedException() instanceof PostalItemNotFoundException),
+                status().isNotFound(),
+                content().contentType(MediaType.APPLICATION_JSON),
+                jsonPath("$.requestURI").value("/api/mail/add-post-office"),
+                jsonPath("$.message").value("Postal item with id=" + nonExistPostalItemId
+                        + " not found"),
+                jsonPath("$.currentTime").exists()
+        );
+    }
+
+    @Test
+    void shouldReturnExceptionResponse_IfThrowPostalItemAlreadyReceivedException_WhenAddingPostOffice() throws Exception {
+        postalItem.setMailStatus(MailStatus.RECEIVED);
+        postalItemRepository.save(postalItem);
+
+        var request = patch("/api/mail/add-post-office")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                            {
+                                "id": %s,
+                                "postOfficeId": %s
+                            }""".formatted(postalItem.getId(), secondPostOffice.getId()));
+
+        this.mockMvc.perform(request).andExpectAll(
+                result -> Assertions.assertTrue(result.getResolvedException() instanceof PostalItemAlreadyReceivedException),
+                status().isBadRequest(),
+                content().contentType(MediaType.APPLICATION_JSON),
+                jsonPath("$.requestURI").value("/api/mail/add-post-office"),
+                jsonPath("$.message").value("The postal item with id="
+                        + postalItem.getId() + " has already been received"),
+                jsonPath("$.currentTime").exists()
+        );
+    }
+
+    @Test
+    void shouldReturnExceptionResponse_IfThrowPostalItemNotEnRouteException_WhenAddingPostOffice() throws Exception {
+        postalItem.setMailStatus(MailStatus.IN_THE_POST_OFFICE);
+        postalItemRepository.save(postalItem);
+
+        var request = patch("/api/mail/add-post-office")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                            {
+                                "id": %s,
+                                "postOfficeId": %s
+                            }""".formatted(postalItem.getId(), secondPostOffice.getId()));
+
+        this.mockMvc.perform(request).andExpectAll(
+                result -> Assertions.assertTrue(result.getResolvedException() instanceof PostalItemNotEnRouteException),
+                status().isBadRequest(),
+                content().contentType(MediaType.APPLICATION_JSON),
+                jsonPath("$.requestURI").value("/api/mail/add-post-office"),
+                jsonPath("$.message").value("Postal item with id=" + postalItem.getId()
+                        + " isn't transit"),
+                jsonPath("$.currentTime").exists()
+        );
+    }
+
+    @Test
+    void shouldReturnExceptionResponse_IfThrowPostOfficeNotFoundException_WhenAddingPostOffice() throws Exception {
+        postalItem.setMailStatus(MailStatus.EN_ROUTE);
+        postalItemRepository.save(postalItem);
+
+        long nonExistPostOffice = secondPostOffice.getId() + 1;
+        var request = patch("/api/mail/add-post-office")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                            {
+                                "id": %s,
+                                "postOfficeId": %s
+                            }""".formatted(postalItem.getId(), nonExistPostOffice));
+
+        this.mockMvc.perform(request).andExpectAll(
+                result -> Assertions.assertTrue(result.getResolvedException() instanceof PostOfficeNotFoundException),
+                status().isNotFound(),
+                content().contentType(MediaType.APPLICATION_JSON),
+                jsonPath("$.requestURI").value("/api/mail/add-post-office"),
+                jsonPath("$.message").value("Post office with id="
+                        + nonExistPostOffice + " not found"),
+                jsonPath("$.currentTime").exists()
+        );
+    }
+
+    @Test
+    void shouldReturnExceptionResponse_IfThrowPostalItemAlreadyBeenInPostOfficeException_WhenAddingPostOffice() throws Exception {
+        postalItem.addPostOffice(secondPostOffice);
+        postalItem.setMailStatus(MailStatus.EN_ROUTE);
+        postalItemRepository.save(postalItem);
+
+        var request = patch("/api/mail/add-post-office")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                            {
+                                "id": %s,
+                                "postOfficeId": %s
+                            }""".formatted(postalItem.getId(), secondPostOffice.getId()));
+
+        this.mockMvc.perform(request).andExpectAll(
+                result -> Assertions.assertTrue(result.getResolvedException() instanceof PostalItemAlreadyBeenInPostOfficeException),
+                status().isBadRequest(),
+                content().contentType(MediaType.APPLICATION_JSON),
+                jsonPath("$.requestURI").value("/api/mail/add-post-office"),
+                jsonPath("$.message").value("The postal item with id="
+                        + postalItem.getId() + " has already been in post office with id="
+                        + secondPostOffice.getId()),
+                jsonPath("$.currentTime").exists()
+        );
     }
 
     @Test
