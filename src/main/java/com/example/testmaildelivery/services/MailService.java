@@ -95,6 +95,6 @@ public class MailService {
 
     private PostalItem getPostalItemById(long id) {
         return postalItemRepository.findById(id)
-                .orElseThrow(() -> new PostalItemNotFoundException("Post office with id=" + id + " not found"));
+                .orElseThrow(() -> new PostalItemNotFoundException("Postal item with id=" + id + " not found"));
     }
 }
