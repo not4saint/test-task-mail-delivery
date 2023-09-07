@@ -256,6 +256,42 @@ class MailControllerTestIT {
     }
 
     @Test
+    void shouldReturnExceptionResponse_IfThrowPostalItemAlreadyReceivedException_WhenLeftFromPostOffice() throws Exception {
+        postalItem.setMailStatus(MailStatus.RECEIVED);
+        postalItemRepository.save(postalItem);
+
+        var request = patch("/api/mail/left-postal-item/{id}", postalItem.getId());
+
+        this.mockMvc.perform(request).andExpectAll(
+                result -> Assertions.assertTrue(result.getResolvedException() instanceof PostalItemAlreadyReceivedException),
+                status().isBadRequest(),
+                content().contentType(MediaType.APPLICATION_JSON),
+                jsonPath("$.requestURI").value("/api/mail/left-postal-item/" + postalItem.getId()),
+                jsonPath("$.message").value("The postal item with id="
+                        + postalItem.getId() + " has already been received"),
+                jsonPath("$.currentTime").exists()
+        );
+    }
+
+    @Test
+    void shouldReturnExceptionResponse_IfThrowPostalItemNotInThePostOfficeException_WhenLeftFromPostOffice() throws Exception {
+        postalItem.setMailStatus(MailStatus.EN_ROUTE);
+        postalItemRepository.save(postalItem);
+
+        var request = patch("/api/mail/left-postal-item/{id}", postalItem.getId());
+
+        this.mockMvc.perform(request).andExpectAll(
+                result -> Assertions.assertTrue(result.getResolvedException() instanceof PostalItemNotInThePostOfficeException),
+                status().isBadRequest(),
+                content().contentType(MediaType.APPLICATION_JSON),
+                jsonPath("$.requestURI").value("/api/mail/left-postal-item/" + postalItem.getId()),
+                jsonPath("$.message").value("Postal item with id=" + postalItem.getId()
+                        + " isn't in the post office"),
+                jsonPath("$.currentTime").exists()
+        );
+    }
+
+    @Test
     void shouldReturnPostalItemResponse_AfterGetStatusAndPostOffices() throws Exception {
         postalItem.addPostOffice(firstPostOffice);
         postalItemRepository.save(postalItem);
@@ -286,5 +322,41 @@ class MailControllerTestIT {
         var request = patch("/api/mail/receive-postal-item/{id}", postalItem.getId());
 
         this.mockMvc.perform(request).andExpect(status().isOk());
+    }
+
+    @Test
+    void shouldReturnExceptionResponse_IfThrowPostalItemAlreadyReceivedException_WhenReceivedPostalItem() throws Exception {
+        postalItem.setMailStatus(MailStatus.RECEIVED);
+        postalItemRepository.save(postalItem);
+
+        var request = patch("/api/mail/receive-postal-item/{id}", postalItem.getId());
+
+        this.mockMvc.perform(request).andExpectAll(
+                result -> Assertions.assertTrue(result.getResolvedException() instanceof PostalItemAlreadyReceivedException),
+                status().isBadRequest(),
+                content().contentType(MediaType.APPLICATION_JSON),
+                jsonPath("$.requestURI").value("/api/mail/receive-postal-item/" + postalItem.getId()),
+                jsonPath("$.message").value("The postal item with id="
+                        + postalItem.getId() + " has already been received"),
+                jsonPath("$.currentTime").exists()
+        );
+    }
+
+    @Test
+    void shouldReturnExceptionResponse_IfThrowPostalItemNotInThePostOfficeException_WhenReceivedPostalItem() throws Exception {
+        postalItem.setMailStatus(MailStatus.EN_ROUTE);
+        postalItemRepository.save(postalItem);
+
+        var request = patch("/api/mail/receive-postal-item/{id}", postalItem.getId());
+
+        this.mockMvc.perform(request).andExpectAll(
+                result -> Assertions.assertTrue(result.getResolvedException() instanceof PostalItemNotInThePostOfficeException),
+                status().isBadRequest(),
+                content().contentType(MediaType.APPLICATION_JSON),
+                jsonPath("$.requestURI").value("/api/mail/receive-postal-item/" + postalItem.getId()),
+                jsonPath("$.message").value("Postal item with id=" + postalItem.getId()
+                        + " isn't in the post office"),
+                jsonPath("$.currentTime").exists()
+        );
     }
 }
