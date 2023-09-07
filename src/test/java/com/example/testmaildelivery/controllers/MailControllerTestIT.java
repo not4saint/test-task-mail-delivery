@@ -1,5 +1,6 @@
 package com.example.testmaildelivery.controllers;
 
+import com.example.testmaildelivery.exceptions.PostOfficeNotFoundException;
 import com.example.testmaildelivery.models.MailStatus;
 import com.example.testmaildelivery.models.MailType;
 import com.example.testmaildelivery.models.PostOffice;
@@ -7,22 +8,18 @@ import com.example.testmaildelivery.models.PostalItem;
 import com.example.testmaildelivery.repositories.PostOfficeRepository;
 import com.example.testmaildelivery.repositories.PostalItemRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashSet;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Slf4j
 @SpringBootTest
@@ -88,6 +85,30 @@ class MailControllerTestIT {
     }
 
     @Test
+    void shouldReturnExceptionResponse_IfThrowPostOfficeNotFoundException_WhenRegisterPostalItem() throws Exception {
+        long nonExistPostOfficeId = secondPostOffice.getId() + 1;
+        var request = post("/api/mail/register-postal-item")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                            {
+                                "mailType": "PARCEL",
+                                "personIndex": 342,
+                                "address": "Mira 23",
+                                "personName": "Vova",
+                                "postOfficeId": %s
+                            }""".formatted(nonExistPostOfficeId));
+
+        this.mockMvc.perform(request).andExpectAll(
+                result -> Assertions.assertTrue(result.getResolvedException() instanceof PostOfficeNotFoundException),
+                status().isNotFound(),
+                content().contentType(MediaType.APPLICATION_JSON),
+                jsonPath("$.requestURI").value("/api/mail/register-postal-item"),
+                jsonPath("$.message").value("Post office with id=" + nonExistPostOfficeId
+                                                                                    + " not found"),
+                jsonPath("$.currentTime").exists()
+        );
+    }
+    @Test
     void shouldReturnOkResponse_AfterAddingPostOffice() throws Exception {
         var request = patch("/api/mail/add-post-office")
                     .contentType(MediaType.APPLICATION_JSON)
@@ -119,8 +140,8 @@ class MailControllerTestIT {
 
         this.mockMvc.perform(request).andExpectAll(
                 status().isOk(),
-                MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON),
-                MockMvcResultMatchers.content().json("""
+                content().contentType(MediaType.APPLICATION_JSON),
+                content().json("""
                         {
                              "mailStatus": %s,
                              "postOffices": [
