@@ -1,7 +1,7 @@
 spring:
   datasource:
-    username: postgres
-    password: volatile789
+    username:
+    password:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/mail-delivery
 

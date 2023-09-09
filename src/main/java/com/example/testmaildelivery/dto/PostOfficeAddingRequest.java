@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class PostalItemAddingRequest {
+public class PostOfficeAddingRequest {
     private long id;
     private long postOfficeId;
 }

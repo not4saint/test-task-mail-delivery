@@ -1,6 +1,6 @@
 package com.example.testmaildelivery.services;
 
-import com.example.testmaildelivery.dto.PostalItemAddingRequest;
+import com.example.testmaildelivery.dto.PostOfficeAddingRequest;
 import com.example.testmaildelivery.dto.PostalItemRegistrationRequest;
 import com.example.testmaildelivery.dto.PostalItemResponse;
 import com.example.testmaildelivery.exceptions.*;
@@ -110,7 +110,7 @@ class MailServiceTest {
         when(postalItemRepository.findById(any(Long.class))).thenReturn(Optional.of(resultPostalItem));
         when(postOfficeRepository.findById(any(Long.class))).thenReturn(Optional.of(secondPostOffice));
 
-        var addingRequest = new PostalItemAddingRequest(1, 2);
+        var addingRequest = new PostOfficeAddingRequest(1, 2);
         mailService.addPostalItemToPostOffice(addingRequest);
 
         assertNotNull(resultPostalItem);
@@ -120,7 +120,7 @@ class MailServiceTest {
 
     @Test
     void shouldThrowPostalItemAlreadyReceivedException_IfItemReceived_WhenAddingPostOffice() {
-        var addingRequest = new PostalItemAddingRequest(1, 2);
+        var addingRequest = new PostOfficeAddingRequest(1, 2);
         var resultPostalItem = new PostalItem(1, MailType.LETTER, 123, "Mira 23", "Peter",
                 MailStatus.RECEIVED, new LinkedHashSet<>());
         when(postalItemRepository.findById(any(Long.class))).thenReturn(Optional.of(resultPostalItem));
@@ -133,7 +133,7 @@ class MailServiceTest {
 
     @Test
     void shouldThrowPostalItemNotEnRouteException_IfItemEnRoute_WhenAddingPostOffice() {
-        var addingRequest = new PostalItemAddingRequest(1, 2);
+        var addingRequest = new PostOfficeAddingRequest(1, 2);
         var resultPostalItem = new PostalItem(1, MailType.LETTER, 123, "Mira 23", "Peter",
                 MailStatus.IN_THE_POST_OFFICE, new LinkedHashSet<>());
         when(postalItemRepository.findById(any(Long.class))).thenReturn(Optional.of(resultPostalItem));
@@ -146,7 +146,7 @@ class MailServiceTest {
 
     @Test
     void shouldThrowPostOfficeNotFoundException_IfPostOfficeNotFound_WhenAddingPostOffice() {
-        var addingRequest = new PostalItemAddingRequest(1, 0);
+        var addingRequest = new PostOfficeAddingRequest(1, 0);
         var resultPostalItem = new PostalItem(1, MailType.LETTER, 123, "Mira 23", "Peter",
                 MailStatus.EN_ROUTE, new LinkedHashSet<>());
         when(postalItemRepository.findById(any(Long.class))).thenReturn(Optional.of(resultPostalItem));
@@ -161,7 +161,7 @@ class MailServiceTest {
     @Test
     void shouldThrowPostalItemAlreadyBeenInPostOfficeException_IfPostOfficeAlreadyContains_WhenAddingPostOffice() {
         postalItem.addPostOffice(firstPostOffice);
-        var addingRequest = new PostalItemAddingRequest(1, 1);
+        var addingRequest = new PostOfficeAddingRequest(1, 1);
         var resultPostalItem = new PostalItem(1, MailType.LETTER, 123, "Mira 23", "Peter",
                 MailStatus.EN_ROUTE, new LinkedHashSet<>());
         resultPostalItem.addPostOffice(firstPostOffice);
@@ -239,7 +239,7 @@ class MailServiceTest {
 
         RuntimeException e = assertThrows(PostalItemNotFoundException.class,
                 () -> mailService.findPostalItemStatusAndPostOfficesById(nonExistId));
-        assertEquals(e.getMessage(), "Post office with id=" + nonExistId + " not found");
+        assertEquals(e.getMessage(), "Postal item with id=" + nonExistId + " not found");
     }
 
     @Test

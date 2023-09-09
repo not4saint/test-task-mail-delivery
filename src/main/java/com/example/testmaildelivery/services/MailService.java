@@ -1,6 +1,6 @@
 package com.example.testmaildelivery.services;
 
-import com.example.testmaildelivery.dto.PostalItemAddingRequest;
+import com.example.testmaildelivery.dto.PostOfficeAddingRequest;
 import com.example.testmaildelivery.dto.PostalItemRegistrationRequest;
 import com.example.testmaildelivery.dto.PostalItemResponse;
 import com.example.testmaildelivery.exceptions.*;
@@ -37,25 +37,25 @@ public class MailService {
         postalItemRepository.save(postalItem);
     }
 
-    public void addPostalItemToPostOffice(PostalItemAddingRequest postalItemAddingRequest) {
-        PostalItem postalItem = getPostalItemById(postalItemAddingRequest.getId());
+    public void addPostalItemToPostOffice(PostOfficeAddingRequest postOfficeAddingRequest) {
+        PostalItem postalItem = getPostalItemById(postOfficeAddingRequest.getId());
 
         if (postalItem.getMailStatus() == MailStatus.RECEIVED)
             throw new PostalItemAlreadyReceivedException("The postal item with id="
-                    + postalItemAddingRequest.getId() + " has already been received");
+                    + postOfficeAddingRequest.getId() + " has already been received");
 
         if (postalItem.getMailStatus() != MailStatus.EN_ROUTE)
-            throw new PostalItemNotEnRouteException("Postal item with id=" + postalItemAddingRequest.getId() + " isn't transit");
+            throw new PostalItemNotEnRouteException("Postal item with id=" + postOfficeAddingRequest.getId() + " isn't transit");
 
-        PostOffice postOffice = postOfficeRepository.findById(postalItemAddingRequest.getPostOfficeId())
+        PostOffice postOffice = postOfficeRepository.findById(postOfficeAddingRequest.getPostOfficeId())
                 .orElseThrow(() -> new PostOfficeNotFoundException("Post office with id="
-                        + postalItemAddingRequest.getPostOfficeId() + " not found"));
+                        + postOfficeAddingRequest.getPostOfficeId() + " not found"));
 
         Hibernate.initialize(postalItem.getPostOffices());
         if (postalItem.getPostOffices().contains(postOffice)) {
             throw new PostalItemAlreadyBeenInPostOfficeException("The postal item with id="
-                    + postalItemAddingRequest.getId() + " has already been in post office with id="
-                    + postalItemAddingRequest.getPostOfficeId());
+                    + postOfficeAddingRequest.getId() + " has already been in post office with id="
+                    + postOfficeAddingRequest.getPostOfficeId());
         }
 
         postalItem.addPostOffice(postOffice);

@@ -1,6 +1,6 @@
 package com.example.testmaildelivery.controllers;
 
-import com.example.testmaildelivery.dto.PostalItemAddingRequest;
+import com.example.testmaildelivery.dto.PostOfficeAddingRequest;
 import com.example.testmaildelivery.dto.PostalItemRegistrationRequest;
 import com.example.testmaildelivery.dto.PostalItemResponse;
 import com.example.testmaildelivery.services.MailService;
@@ -25,8 +25,8 @@ public class MailController {
     }
 
     @PatchMapping("/add-post-office")
-    public ResponseEntity<HttpStatus> addPostalItemToPostOffice(@RequestBody PostalItemAddingRequest postalItemAddingRequest) {
-        mailService.addPostalItemToPostOffice(postalItemAddingRequest);
+    public ResponseEntity<HttpStatus> addPostalItemToPostOffice(@RequestBody PostOfficeAddingRequest postOfficeAddingRequest) {
+        mailService.addPostalItemToPostOffice(postOfficeAddingRequest);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
